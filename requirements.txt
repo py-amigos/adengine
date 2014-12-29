@@ -1,0 +1,9 @@
+Flask==0.10.1
+
+flask-restful
+
+Flask-Migrate==1.2.0
+Flask-SQLAlchemy==1.0
+Flask-Script==2.0.5
+
+SQLAlchemy==0.9.5

@@ -1,5 +1,5 @@
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.curdir)
 
 
 class Config(object):
@@ -9,10 +9,9 @@ class Config(object):
     ADENGINE_MAIL_SENDER = 'Adengine Admin <adengine@example.com>'
     ADENGINE_ADMIN = os.environ.get('ADENGINE_ADMIN')
 
-
-@staticmethod
-def init_app(app):
-    pass
+    @staticmethod
+    def init_app(app):
+        pass
 
 
 class DevelopmentConfig(Config):
@@ -22,28 +21,31 @@ class DevelopmentConfig(Config):
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
-
-    @staticmethod
-    def init_app(app):
-        pass
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get('DEV_DATABASE_URL')
+        or 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    )
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+    DATABASE_PATH = os.path.join(basedir, 'data-test.sqlite')
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get('TEST_DATABASE_URL')
+        or 'sqlite:///' + DATABASE_PATH
+    )
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get('DATABASE_URL')
+        or 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    )
 
 
-config = {
+get_by_name = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
     'default': DevelopmentConfig
-}
+}.get
