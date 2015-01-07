@@ -1,0 +1,13 @@
+language: python
+
+# http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
+sudo: false
+
+env:
+  - TOXENV=py27
+
+install:
+  - pip install -q tox
+
+script:
+  - tox -e $TOXENV
