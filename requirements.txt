@@ -1,6 +1,6 @@
 Flask==0.10.1
 
-flask-restful
+flask-restless
 
 Flask-Migrate==1.2.0
 Flask-SQLAlchemy==1.0

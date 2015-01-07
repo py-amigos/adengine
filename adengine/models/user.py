@@ -25,3 +25,6 @@ class User(Base):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
 
     ads = db.relationship('Ad', order_by="Ad.id", backref='author')
+
+    def __str__(self):
+        return "User(id={self.id}, username={self.username})".format(self=self)

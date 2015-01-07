@@ -19,7 +19,7 @@ def app():
     ctx.pop()
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope='function')
 def db(app):
     if os.path.exists(db_path):
         os.remove(db_path)
@@ -32,7 +32,7 @@ def db(app):
     os.remove(db_path)
 
 
-@pytest.yield_fixture(scope='session', autouse=True)
+@pytest.yield_fixture(scope='function', autouse=True)
 def session(db):
     connection = db.engine.connect()
     transaction = connection.begin()

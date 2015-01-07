@@ -12,11 +12,12 @@ from flask import (
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
-db = SQLAlchemy()
+app = Flask(__name__)
+db = SQLAlchemy(app)
 
 
 def create_app(config_name):
-    app = Flask(__name__)
+    global app
     app.errorhandler(404)(not_found)
 
     config = app_config.get_by_name(config_name)
@@ -24,12 +25,30 @@ def create_app(config_name):
     app.config.from_object(config)
     config.init_app(app)
 
-    db.init_app(app)
-    from flask.ext.restful import Api
-    api = Api(app)
-    from adengine.views import user
-    api.add_resource(user.User, "/api/v1.0/users/<string:user_id>")
-    api.add_resource(user.Users, "/api/v1.0/users")
+    app = configure_endpoints(app, db)
+    # db initialisation should follow endpoints configuration
+    # as models metadata is built during previous step
+    db.create_all()
+    return app
+
+
+def configure_endpoints(app, db):
+    """Configure endpoints based on the existing models.
+
+    :param flask.Flask app: Flask Application.
+    :param flask.ext.sqlalchemy.SQLAlchemy db: Database configuration.
+    :rtype: flask.Flask
+    """
+    import flask.ext.restless
+
+    manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+
+    from .models import user, ad, comment
+
+    manager.create_api(user.User, methods=['GET', 'POST', 'DELETE', 'PUT'])
+    manager.create_api(ad.Ad, methods=['GET', 'POST', 'DELETE', 'PUT'])
+    manager.create_api(comment.Comment, methods=['GET', 'POST', 'DELETE', 'PUT'])
+
     return app
 
 
