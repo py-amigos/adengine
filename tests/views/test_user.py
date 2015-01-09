@@ -2,8 +2,7 @@ __author__ = 'signalpillar'
 
 import json
 
-from adengine.models.user import User
-from adengine.models.ad import Ad  # noqa
+from adengine.model import User, Ad
 
 NOT_FOUND_ERROR = {
     "error": "Not found"
@@ -49,7 +48,7 @@ def test_user_added(session):
     assert user.id > 0
 
 
-def test_get_all_users(session, app):
+def test_get_all_users(session, client):
     """
     Should return all added users.
     """
@@ -58,7 +57,6 @@ def test_get_all_users(session, app):
     user2 = _new_user(name='Vova')
     _add_user(session, user1)
     _add_user(session, user2)
-    client = app.test_client()
 
     # execute
     all_users = json.loads(client.get(build_api_url()).data)

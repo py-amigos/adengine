@@ -1,7 +1,8 @@
 __author__ = "signalpillar"
 
 
-import adengine.config as app_config
+from . import model
+from .config import get_by_name as get_config_by_name
 
 from flask import (
     Flask,
@@ -9,26 +10,22 @@ from flask import (
     make_response,)
 
 
-from flask.ext.sqlalchemy import SQLAlchemy
-
-
-app = Flask(__name__)
-db = SQLAlchemy(app)
-
-
 def create_app(config_name):
-    global app
-    app.errorhandler(404)(not_found)
 
-    config = app_config.get_by_name(config_name)
+    app = Flask(__name__)
 
+    config = get_config_by_name(config_name)
     app.config.from_object(config)
     config.init_app(app)
 
-    app = configure_endpoints(app, db)
+    # at this step all the models are
+    model.db.init_app(app)
+    model.db.app = app
+
+    configure_endpoints(app, model.db)
     # db initialisation should follow endpoints configuration
     # as models metadata is built during previous step
-    db.create_all()
+    model.db.create_all()
     return app
 
 
@@ -43,11 +40,9 @@ def configure_endpoints(app, db):
 
     manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
 
-    from .models import user, ad, comment
-
-    manager.create_api(user.User, methods=['GET', 'POST', 'DELETE', 'PUT'])
-    manager.create_api(ad.Ad, methods=['GET', 'POST', 'DELETE', 'PUT'])
-    manager.create_api(comment.Comment, methods=['GET', 'POST', 'DELETE', 'PUT'])
+    manager.create_api(model.User, methods=['GET', 'POST', 'DELETE', 'PUT'])
+    manager.create_api(model.Ad, methods=['GET', 'POST', 'DELETE', 'PUT'])
+    manager.create_api(model.Comment, methods=['GET', 'POST', 'DELETE', 'PUT'])
 
     return app
 

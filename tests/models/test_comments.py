@@ -1,7 +1,6 @@
 __author__ = 'jkf'
-from adengine.models.user import User
-from adengine.models.ad import Ad  # noqa
-from adengine.models.comment import Comment
+
+from adengine.model import User, Ad, Comment
 
 
 def _add_resource(session, resource):
