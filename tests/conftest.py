@@ -2,7 +2,7 @@ import os
 import pytest
 
 from adengine.app import create_app
-from adengine.app import db as _db
+from adengine.model import db as _db
 from adengine.config import TestingConfig
 
 db_path = TestingConfig.DATABASE_PATH
@@ -19,6 +19,11 @@ def app():
     ctx.pop()
 
 
+@pytest.yield_fixture(scope='function')
+def client(app):
+    yield app.test_client()
+
+
 @pytest.yield_fixture(scope='session')
 def db(app):
     if os.path.exists(db_path):
@@ -32,12 +37,11 @@ def db(app):
     os.remove(db_path)
 
 
-@pytest.yield_fixture(scope='session', autouse=True)
+@pytest.yield_fixture(scope='function')
 def session(db):
     connection = db.engine.connect()
     transaction = connection.begin()
 
-    # options = dict(bind=connection, binds={})
     session = db.create_scoped_session()
 
     db.session = session
