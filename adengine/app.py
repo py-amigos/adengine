@@ -29,16 +29,18 @@ def create_app(config_name):
     return app
 
 
-def configure_endpoints(app, db):
+def configure_endpoints(app, db=None, session=None):
     """Configure endpoints based on the existing models.
 
     :param flask.Flask app: Flask Application.
     :param flask.ext.sqlalchemy.SQLAlchemy db: Database configuration.
     :rtype: flask.Flask
     """
+    assert db or session
+
     import flask.ext.restless
 
-    manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+    manager = flask.ext.restless.APIManager(app, session=session, flask_sqlalchemy_db=db)
 
     manager.create_api(model.User, methods=['GET', 'POST', 'DELETE', 'PUT'])
     manager.create_api(model.Ad, methods=['GET', 'POST', 'DELETE', 'PUT'])

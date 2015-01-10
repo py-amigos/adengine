@@ -1,5 +1,3 @@
-__author__ = 'signalpillar'
-
 import json
 
 from adengine.model import User, Ad
@@ -39,13 +37,18 @@ def _add_resource(session, resource):
     return resource
 
 
-def test_user_added(session):
+def test_user_added(client):
     """
     User should be added to the database and ID generated.
     """
     user = _new_user()
-    _add_user(session, user)
-    assert user.id > 0
+    result = client.post(
+        build_api_url(),
+        data=json.dumps(user.as_dict()),
+        content_type='application/json'
+    )
+    print result.data, result
+    assert 201 == result.status_code
 
 
 def test_get_all_users(session, client):
@@ -81,24 +84,18 @@ def test_delete_non_existing_user(session, app):
     result.status_code == 404
 
 
-# TODO: fix the test case
-def _test_user_deleted(session, app):
-    """
-    Should delete user using View class for users.
-    """
+def test_user_deleted(session, client):
+    """Should delete user using View class for users."""
     # given
     user = _new_user(name='to-delete')
     _add_user(session, user)
-    client = app.test_client()
 
     # exercise
-    print build_api_url(user.id)
     result = client.delete(build_api_url(user.id))
 
     # verify
-    assert user.id == json.loads(result.data).get('id')
+    assert result.status_code == 204
     assert None == User.query.filter_by(id=user.id).first()
-    result.status_code == 404
 
 
 def test_get_user_by_id(session, app):
@@ -109,24 +106,10 @@ def test_get_user_by_id(session, app):
     user = _new_user(name='Ivan')
     _add_user(session, user)
     client = app.test_client()
-    # exercise
     query = build_api_url(user.id)
+
+    # exercise
     user_in_db = json.loads(client.get(query).data)
 
     # verify
     assert user.id == user_in_db.get('id')
-
-
-def test_ads_created_by_user(session, app):
-    """Ensure user refers all his ads."""
-    # given
-    user = _add_resource(session, _new_user(name='PeterUser'))
-    ad1 = _add_resource(session, _new_ad(user, text="ad1-text"))
-    ad2 = _add_resource(session, _new_ad(user, text="ad2-text"))
-
-    # exercise
-    ads = user.ads
-
-    # verify
-    assert ads == [ad1, ad2]
-    assert ad1.author == user

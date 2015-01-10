@@ -37,7 +37,7 @@ def _new_comment(ad, user, text='bla-bla-bla'):
     return comment
 
 
-def test_comments_refers_both_ad_and_user(session, app):
+def test_comments_refers_both_ad_and_user(session, client):
     "Ensure comments added are referneced from the Ad"
     # given
     user = _add_resource(session, _new_user(name='PeterGeneralUser'))
@@ -46,12 +46,11 @@ def test_comments_refers_both_ad_and_user(session, app):
     _add_resource(session, _new_comment(ad, user, text="ad11-text1"))
     _add_resource(session, _new_comment(ad, user1, text="ad12-text1"))
 
-    client = app.test_client()
-
     # exercise
-    query = build_api_url()
-    doc = json.loads(client.get(query).data)
+    result = client.get(build_api_url()).data
+    doc = json.loads(result)
 
     # verify
-    print doc
-    assert 1 == len(doc.get("objects"))
+    ads_dicts = doc.get("objects")
+    assert 1 == len(ads_dicts), "Expected only one advertisement."
+    assert "ad1-text1" == ads_dicts[0].get('text')
