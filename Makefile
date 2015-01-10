@@ -13,7 +13,7 @@ clean:
 	find . -name "*.pyc" -exec rm -v {} \;
 
 tests:
-	py.test -v --tb short -s --looponfail
+	py.test -vvv --tb short -s --looponfail --nocapturelog
 
 create-new-user:
 	curl -i -H Content-Type: application/json -X POST -d {"title": 10} http://localhost:5000/api/v1.0/users
