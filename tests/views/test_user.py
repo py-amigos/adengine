@@ -47,7 +47,6 @@ def test_user_added(client):
         data=json.dumps(user.as_dict()),
         content_type='application/json'
     )
-    print result.data, result
     assert 201 == result.status_code
 
 
